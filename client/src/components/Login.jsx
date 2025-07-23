@@ -1,92 +1,86 @@
-import axios from "axios";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function Login({ onSwitchToSignup }) {
   const [user, setUser] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
-
-    try {
-      const response = await axios.post("/api/users/login", user);
-      
-      // Store token in localStorage
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("user", JSON.stringify(response.data.user));
-      
-      alert(`Welcome back, ${response.data.user.name}!`);
-      navigate("/dashboard");
-    } catch (error) {
-      if (error.response) {
-        // Show backend error, status, and data
-        alert(`Login failed (${error.response.status}):\n${error.response.data?.error || JSON.stringify(error.response.data)}`);
-        console.error('Backend error:', error.response);
-      } else if (error.request) {
-        alert('No response from server. Please check your network or server.');
-        console.error('No response:', error.request);
-      } else {
-        alert('Error: ' + error.message);
-        console.error('Error:', error);
-      }
-    } finally {
-      setLoading(false);
+    setError("");
+    // Check localStorage for user
+    const allUsers = JSON.parse(localStorage.getItem("allUsers") || "[]");
+    const found = allUsers.find(u => u.email === user.email && u.password === user.password);
+    if (found) {
+      localStorage.setItem("user", JSON.stringify(found));
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 500);
+    } else {
+      setError("Invalid credentials. Please try again.");
     }
+    setLoading(false);
   };
 
   return (
-    <div className="p-6 max-w-sm mx-auto bg-white rounded-lg shadow-md">
-      <h1 className="text-2xl font-bold mb-6 text-center text-gray-800">Login</h1>
-      
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+      <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg border">
+        <div className="text-center mb-6">
+          <h1 className="text-3xl font-extrabold text-green-700">GreenPoint</h1>
+          <div className="text-5xl mt-2">🌱</div>
+          <p className="mt-2 text-lg font-semibold text-gray-700">Welcome back!</p>
+          <p className="text-gray-500 text-sm">Login to your account below.</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
           <input
-            className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             type="email"
             placeholder="Email"
             value={user.email}
             onChange={(e) => setUser({ ...user, email: e.target.value })}
             required
+            className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:outline-none"
           />
-        </div>
-        
-        <div>
+
           <input
-            className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             type="password"
             placeholder="Password"
             value={user.password}
             onChange={(e) => setUser({ ...user, password: e.target.value })}
             required
+            className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:outline-none"
           />
-        </div>
-        
-        <button
-          type="submit"
-          disabled={loading}
-          className={`w-full py-2 px-4 rounded-md text-white font-medium ${
-            loading 
-              ? 'bg-gray-400 cursor-not-allowed' 
-              : 'bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500'
-          }`}
-        >
-          {loading ? "Logging in..." : "Login"}
-        </button>
-      </form>
-      
-      <div className="mt-4 text-center">
-        <p className="text-gray-600">
-          Don't have an account?{" "}
+
+          {error && <div className="text-red-600 text-sm text-center">{error}</div>}
+
           <button
-            onClick={onSwitchToSignup}
-            className="text-blue-600 hover:text-blue-800 font-medium"
+            type="submit"
+            disabled={loading}
+            className={`w-full py-3 rounded-lg text-white font-bold shadow-md transition duration-200 ${
+              loading
+                ? "bg-green-300 cursor-not-allowed"
+                : "bg-green-600 hover:bg-green-700 focus:ring-2 focus:ring-green-500"
+            }`}
           >
-            Sign up
+            {loading ? "Logging in..." : "Login"}
           </button>
-        </p>
+        </form>
+
+        <div className="mt-6 text-center">
+          <p className="text-sm text-gray-600">
+            Don’t have an account?
+            <button
+              onClick={onSwitchToSignup}
+              type="button"
+              className="ml-1 text-green-700 font-semibold underline hover:text-green-900"
+            >
+              Sign up
+            </button>
+          </p>
+        </div>
       </div>
     </div>
   );

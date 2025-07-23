@@ -1,9 +1,12 @@
-import './App.css';
-import Signup from './components/Signup.jsx';
-import Login from './components/Login.jsx';
-import Dashboard from './components/Dashboard.jsx';
-import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import React, { useState } from 'react';
+import { Navigate, Route, Routes } from 'react-router-dom';
+import './App.css';
+import AddAction from './components/AddAction.jsx';
+import Dashboard from './components/Dashboard.jsx';
+import Leaderboard from './components/Leaderboard.jsx';
+import Login from './components/Login.jsx';
+import Rewards from './components/Rewards.jsx';
+import Signup from './components/Signup.jsx';
 
 function App() {
   // State to toggle between login/signup for the root route
@@ -11,7 +14,7 @@ function App() {
   const isAuthenticated = Boolean(localStorage.getItem('token'));
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+    <div className="min-h-screen flex items-center justify-center">
       <Routes>
         <Route
           path="/"
@@ -29,6 +32,9 @@ function App() {
             isAuthenticated ? <Dashboard /> : <Navigate to="/" replace />
           }
         />
+        <Route path="/add-action" element={<AddAction />} />
+        <Route path="/rewards" element={<Rewards />} />
+        <Route path="/leaderboard" element={<Leaderboard />} />
       </Routes>
     </div>
   );
