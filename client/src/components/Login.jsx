@@ -1,27 +1,33 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-function Login({ onSwitchToSignup }) 
-{
-  const [user, setUser] = useState({ email: "", password: "" });
+function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
-    // Check localStorage for user
-    const allUsers = JSON.parse(localStorage.getItem("allUsers") || "[]");
-    const found = allUsers.find(u => u.email === user.email && u.password === user.password);
-    if (found) {
-      localStorage.setItem("user", JSON.stringify(found));
-      setTimeout(() => {
+    try {
+      const res = await fetch("/api/users/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
         navigate("/dashboard");
-      }, 500);
-    } else {
-      setError("Invalid credentials. Please try again.");
+      } else {
+        setError(data.error || "Invalid credentials. Please try again.");
+      }
+    } catch (err) {
+      setError("Network error. Please try again.");
     }
     setLoading(false);
   };
@@ -38,11 +44,12 @@ function Login({ onSwitchToSignup })
         </div>
 
         <form onSubmit={handleSubmit} className="mt-4">
+          {error && <div className="alert alert-danger py-2 text-center small mb-3">{error}</div>}
           <input
             type="email"
             placeholder="Email"
-            value={user.email}
-            onChange={(e) => setUser({ ...user, email: e.target.value })}
+            value={email}
+            onChange={e => setEmail(e.target.value)}
             required
             className="form-control mb-3"
           />
@@ -50,8 +57,8 @@ function Login({ onSwitchToSignup })
           <input
             type="password"
             placeholder="Password"
-            value={user.password}
-            onChange={(e) => setUser({ ...user, password: e.target.value })}
+            value={password}
+            onChange={e => setPassword(e.target.value)}
             required
             className="form-control mb-3"
           />
@@ -63,17 +70,15 @@ function Login({ onSwitchToSignup })
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
-        <div className="mt-4 text-center">
-          <p className="small text-secondary mb-0">
-            Don’t have an account?
-            <button
-              onClick={onSwitchToSignup}
-              type="button"
-              className="ms-1 text-success fw-semibold text-decoration-underline btn btn-link p-0 align-baseline"
-            >
-              Sign up
-            </button>
-          </p>
+        <div className="mt-3 text-center text-secondary small">
+          Don't have an account?
+          <button
+            type="button"
+            className="ms-2 text-success fw-semibold text-decoration-underline btn btn-link p-0 align-baseline"
+            onClick={() => navigate("/signup")}
+          >
+            Sign Up
+          </button>
         </div>
       </div>
     </div>
