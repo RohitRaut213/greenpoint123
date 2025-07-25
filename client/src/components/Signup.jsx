@@ -27,28 +27,28 @@ function Signup() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f4f6f8]">
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-green-700 text-center">Sign Up</h2>
-        {error && <div className="mb-4 text-red-600 text-sm text-center">{error}</div>}
-        <div className="mb-4">
-          <label className="block mb-1 text-gray-700 font-medium">Name</label>
-          <input type="text" value={name} onChange={e => setName(e.target.value)} className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400" />
+    <div className="min-vh-100 d-flex align-items-center justify-content-center bg-light">
+      <form onSubmit={handleSubmit} className="card shadow border-0 p-4 w-100" style={{maxWidth: 400}}>
+        <h2 className="h4 fw-bold mb-4 text-success text-center">Sign Up</h2>
+        {error && <div className="alert alert-danger py-2 text-center small mb-3">{error}</div>}
+        <div className="mb-3">
+          <label className="form-label fw-medium">Name</label>
+          <input type="text" value={name} onChange={e => setName(e.target.value)} className="form-control" />
+        </div>
+        <div className="mb-3">
+          <label className="form-label fw-medium">Email</label>
+          <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="form-control" />
         </div>
         <div className="mb-4">
-          <label className="block mb-1 text-gray-700 font-medium">Email</label>
-          <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400" />
+          <label className="form-label fw-medium">Password</label>
+          <input type="password" value={password} onChange={e => setPassword(e.target.value)} className="form-control" />
         </div>
-        <div className="mb-6">
-          <label className="block mb-1 text-gray-700 font-medium">Password</label>
-          <input type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400" />
-        </div>
-        <button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition">Sign Up</button>
-        <div className="mt-4 text-center text-gray-600 text-sm">
+        <button type="submit" className="btn btn-success w-100 fw-bold py-2">Sign Up</button>
+        <div className="mt-3 text-center text-secondary small">
           Already have an account?
           <button
             type="button"
-            className="ml-2 text-green-700 font-semibold hover:underline focus:outline-none focus:ring-2 focus:ring-green-400 px-2 py-1 rounded"
+            className="ms-2 text-success fw-semibold text-decoration-underline btn btn-link p-0 align-baseline"
             onClick={() => navigate("/")}
           >
             Log In

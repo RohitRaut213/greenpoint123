@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-function Login({ onSwitchToSignup }) {
+function Login({ onSwitchToSignup }) 
+{
   const [user, setUser] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -26,23 +27,24 @@ function Login({ onSwitchToSignup }) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg border">
-        <div className="text-center mb-6">
-          <h1 className="text-3xl font-extrabold text-green-700">GreenPoint</h1>
-          <div className="text-5xl mt-2">🌱</div>
-          <p className="mt-2 text-lg font-semibold text-gray-700">Welcome back!</p>
-          <p className="text-gray-500 text-sm">Login to your account below.</p>
+    <div className="min-vh-100 d-flex align-items-center justify-content-center bg-light px-2">
+      <div className="w-100" style={{maxWidth: 400}}>
+        <div className="card shadow border-0 p-4">
+        <div className="text-center mb-4">
+          <h1 className="h3 fw-bold text-success">GreenPoint</h1>
+          <div className="display-4 mt-2">🌱</div>
+          <p className="mt-2 fs-5 fw-semibold text-dark">Welcome back!</p>
+          <p className="text-secondary small">Login to your account below.</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="mt-4">
           <input
             type="email"
             placeholder="Email"
             value={user.email}
             onChange={(e) => setUser({ ...user, email: e.target.value })}
             required
-            className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:outline-none"
+            className="form-control mb-3"
           />
 
           <input
@@ -51,31 +53,23 @@ function Login({ onSwitchToSignup }) {
             value={user.password}
             onChange={(e) => setUser({ ...user, password: e.target.value })}
             required
-            className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:outline-none"
+            className="form-control mb-3"
           />
-
-          {error && <div className="text-red-600 text-sm text-center">{error}</div>}
-
           <button
             type="submit"
+            className="btn btn-success w-100"
             disabled={loading}
-            className={`w-full py-3 rounded-lg text-white font-bold shadow-md transition duration-200 ${
-              loading
-                ? "bg-green-300 cursor-not-allowed"
-                : "bg-green-600 hover:bg-green-700 focus:ring-2 focus:ring-green-500"
-            }`}
           >
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
-
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600">
+        <div className="mt-4 text-center">
+          <p className="small text-secondary mb-0">
             Don’t have an account?
             <button
               onClick={onSwitchToSignup}
               type="button"
-              className="ml-1 text-green-700 font-semibold underline hover:text-green-900"
+              className="ms-1 text-success fw-semibold text-decoration-underline btn btn-link p-0 align-baseline"
             >
               Sign up
             </button>
@@ -83,6 +77,7 @@ function Login({ onSwitchToSignup }) {
         </div>
       </div>
     </div>
+  </div>
   );
 }
 

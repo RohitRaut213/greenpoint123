@@ -7,12 +7,9 @@
     "client": "cd client && npm start"
   },
   "devDependencies": {
-    "autoprefixer": "^10.4.21",
-    "concurrently": "^7.6.0",
-    "postcss": "^8.5.6"
+    "concurrently": "^7.6.0"
   },
   "dependencies": {
-    "mongodb": "^6.17.0",
-    "tailwindcss": "^3.4.17"
+    "mongodb": "^6.17.0"
   }
 }

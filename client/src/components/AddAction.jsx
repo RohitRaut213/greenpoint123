@@ -30,17 +30,17 @@ function AddAction() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md text-center">
-        <h2 className="text-2xl font-bold mb-6 text-green-700">Choose an Eco Action</h2>
+    <div className="min-vh-100 d-flex flex-column align-items-center justify-content-center bg-light">
+      <div className="card shadow border-0 p-4 w-100 text-center" style={{maxWidth: 400}}>
+        <h2 className="h4 fw-bold mb-4 text-success">Choose an Eco Action</h2>
         <button
-          className="w-full mb-4 bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg text-lg font-semibold transition"
+          className="btn btn-success w-100 mb-3 fw-semibold fs-5 py-2"
           onClick={() => handleAction('tree')}
         >
           Plant a Tree (+100 points)
         </button>
         <button
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg text-lg font-semibold transition"
+          className="btn btn-primary w-100 fw-semibold fs-5 py-2"
           onClick={() => handleAction('transport')}
         >
           Travelled through Public Transport (+50 points)
