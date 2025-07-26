@@ -1,7 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from '@clerk/clerk-react';
 
 function AddAction() {
+  const { user } = useUser();
   const navigate = useNavigate();
   const [distance, setDistance] = React.useState('');
   const [showDistance, setShowDistance] = React.useState(false);
@@ -35,21 +37,25 @@ function AddAction() {
       setError('Please enter a valid number of trees (1 or more)');
       return;
     }
-    // Get user from localStorage
-    const user = JSON.parse(localStorage.getItem('user')) || { name: 'User', points: 0, co2saved: 0 };
-    let points = user.points || 0;
-    let co2saved = user.co2saved || 0;
+    // Clerk userId/email for per-user storage
+    const userId = user?.id;
+    const email = user?.primaryEmailAddress?.emailAddress || user?.emailAddresses?.[0]?.emailAddress || undefined;
+    const userKey = userId ? `user_${userId}` : 'user';
+    const historyKey = userId ? `actionHistory_${userId}` : 'actionHistory';
+    const userObj = JSON.parse(localStorage.getItem(userKey)) || { name: user?.firstName || 'User', points: 0, co2saved: 0, email };
+    let points = userObj.points || 0;
+    let co2saved = userObj.co2saved || 0;
     const co2 = TREE_CO2 * n;
     const pts = Math.round(co2);
     points += pts;
     co2saved += co2;
     const actionText = `Planted ${n} tree${n > 1 ? 's' : ''} (saved ${co2} kg CO₂/year)`;
-    const updatedUser = { ...user, points, co2saved };
-    localStorage.setItem('user', JSON.stringify(updatedUser));
-    const history = JSON.parse(localStorage.getItem('actionHistory') || '[]');
-    history.unshift({ type: 'tree', actionText, co2, points: pts, numTrees: n, timestamp: new Date().toISOString() });
-    localStorage.setItem('actionHistory', JSON.stringify(history));
-    localStorage.setItem('lastAction', 'tree');
+    const updatedUser = { ...userObj, points, co2saved, email };
+    localStorage.setItem(userKey, JSON.stringify(updatedUser));
+    const history = JSON.parse(localStorage.getItem(historyKey) || '[]');
+    history.unshift({ type: 'tree', actionText, co2, points: pts, numTrees: n, timestamp: new Date().toISOString(), email });
+    localStorage.setItem(historyKey, JSON.stringify(history));
+    localStorage.setItem(userId ? `lastAction_${userId}` : 'lastAction', 'tree');
     setShowTreeForm(false);
     setNumTrees('1');
     navigate('/dashboard');
@@ -63,21 +69,25 @@ function AddAction() {
       setError('Please enter a valid distance (km)');
       return;
     }
+    // Clerk userId/email for per-user storage
+    const userId = user?.id;
+    const email = user?.primaryEmailAddress?.emailAddress || user?.emailAddresses?.[0]?.emailAddress || undefined;
+    const userKey = userId ? `user_${userId}` : 'user';
+    const historyKey = userId ? `actionHistory_${userId}` : 'actionHistory';
+    const userObj = JSON.parse(localStorage.getItem(userKey)) || { name: user?.firstName || 'User', points: 0, co2saved: 0, email };
+    let points = userObj.points || 0;
+    let co2saved = userObj.co2saved || 0;
     const co2 = (CAR_CO2 - TRANSIT_CO2) * dist;
     const pts = Math.round(co2);
-    // Get user from localStorage
-    const user = JSON.parse(localStorage.getItem('user')) || { name: 'User', points: 0, co2saved: 0 };
-    let points = user.points || 0;
-    let co2saved = user.co2saved || 0;
     points += pts;
     co2saved += co2;
     const actionText = `Travelled ${dist} km by public transport (saved ${co2.toFixed(2)} kg CO₂)`;
-    const updatedUser = { ...user, points, co2saved };
-    localStorage.setItem('user', JSON.stringify(updatedUser));
-    const history = JSON.parse(localStorage.getItem('actionHistory') || '[]');
-    history.unshift({ type: 'transport', actionText, co2, points: pts, distance: dist, timestamp: new Date().toISOString() });
-    localStorage.setItem('actionHistory', JSON.stringify(history));
-    localStorage.setItem('lastAction', 'transport');
+    const updatedUser = { ...userObj, points, co2saved, email };
+    localStorage.setItem(userKey, JSON.stringify(updatedUser));
+    const history = JSON.parse(localStorage.getItem(historyKey) || '[]');
+    history.unshift({ type: 'transport', actionText, co2, points: pts, distance: dist, timestamp: new Date().toISOString(), email });
+    localStorage.setItem(historyKey, JSON.stringify(history));
+    localStorage.setItem(userId ? `lastAction_${userId}` : 'lastAction', 'transport');
     setShowDistance(false);
     setDistance('');
     navigate('/dashboard');

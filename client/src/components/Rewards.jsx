@@ -1,7 +1,11 @@
 import React from 'react';
+import { useUser } from '@clerk/clerk-react';
 
 function Rewards() {
-  const user = JSON.parse(localStorage.getItem('user')) || { name: 'User', points: 0, co2saved: 0 };
+  const { user: clerkUser } = useUser();
+  const userId = clerkUser?.id;
+  const userKey = userId ? `user_${userId}` : 'user';
+  const user = JSON.parse(localStorage.getItem(userKey)) || { name: clerkUser?.firstName || 'User', points: 0, co2saved: 0 };
   return (
     <div className="min-vh-100 d-flex flex-column align-items-center justify-content-center bg-light">
       <div className="card shadow border-0 p-4 w-100 text-center" style={{maxWidth: 400}}>

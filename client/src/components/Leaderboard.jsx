@@ -1,32 +1,33 @@
 import React, { useEffect, useState } from 'react';
+import { useUser } from '@clerk/clerk-react';
 
-// For demo: Simulate users list in localStorage
-function getAllUsers() {
-  // Try to get users from localStorage
-  let users = JSON.parse(localStorage.getItem('allUsers')) || [];
-  // Ensure current user is always present
-  const current = JSON.parse(localStorage.getItem('user')) || { name: 'User', points: 0 };
-  // If not present, add current user
+// For demo: Simulate users list in localStorage, per Clerk user
+function getAllUsers(userId) {
+  const allUsersKey = userId ? `allUsers_${userId}` : 'allUsers';
+  let users = JSON.parse(localStorage.getItem(allUsersKey)) || [];
+  const userKey = userId ? `user_${userId}` : 'user';
+  const current = JSON.parse(localStorage.getItem(userKey)) || { name: 'User', points: 0 };
   if (!users.some(u => u.name === current.name)) {
     users.push(current);
   } else {
     users = users.map(u => u.name === current.name ? current : u);
   }
-  // Save back
-  localStorage.setItem('allUsers', JSON.stringify(users));
+  localStorage.setItem(allUsersKey, JSON.stringify(users));
   return users;
 }
 
 function Leaderboard() {
+  const { user: clerkUser } = useUser();
+  const userId = clerkUser?.id;
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
     setUsers(
-      getAllUsers()
+      getAllUsers(userId)
         .slice() // copy
         .sort((a, b) => b.points - a.points)
     );
-  }, []);
+  }, [userId]);
 
   return (
     <div className="min-vh-100 d-flex flex-column align-items-center justify-content-center bg-light">

@@ -2,14 +2,19 @@ import React from 'react';
 import { FaLeaf, FaRecycle } from 'react-icons/fa';
 import { MdOutlineAdminPanelSettings } from 'react-icons/md';
 import plantSuggestions from '../data/plantSuggestions';
-
+import { useUser } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
 
 function Dashboard() {
+  const { user: clerkUser } = useUser();
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem('user')) || { name: 'User', points: 180 };
+  const userId = clerkUser?.id;
+  const email = clerkUser?.primaryEmailAddress?.emailAddress || clerkUser?.emailAddresses?.[0]?.emailAddress || undefined;
+  const userKey = userId ? `user_${userId}` : 'user';
+  const historyKey = userId ? `actionHistory_${userId}` : 'actionHistory';
+  const user = JSON.parse(localStorage.getItem(userKey)) || { name: clerkUser?.firstName || 'User', points: 180, email };
   // Get action history from localStorage, filter for this user
-  const actionHistoryRaw = JSON.parse(localStorage.getItem('actionHistory') || '[]');
+  const actionHistoryRaw = JSON.parse(localStorage.getItem(historyKey) || '[]');
   const actionHistory = actionHistoryRaw.filter(a => a.email === user.email);
 
   return (
