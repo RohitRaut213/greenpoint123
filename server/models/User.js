@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: [true, 'Password is required'],
+        required: false, // Not required for Clerk users
         minlength: [6, 'Password must be at least 6 characters long']
     },
     role: {
@@ -53,7 +53,8 @@ const userSchema = new mongoose.Schema({
 userSchema.pre('save', async function(next) {
     // Only hash the password if it has been modified (or is new)
     if (!this.isModified('password')) return next();
-    
+    // Skip hashing if password is missing (e.g. Clerk user)
+    if (!this.password) return next();
     try {
         // Hash password with cost of 12
         const hashedPassword = await bcrypt.hash(this.password, 12);

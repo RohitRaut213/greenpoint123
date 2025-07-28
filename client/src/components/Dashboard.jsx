@@ -9,13 +9,12 @@ function Dashboard() {
   const { user: clerkUser } = useUser();
   const navigate = useNavigate();
   const userId = clerkUser?.id;
+  // Restore previous localStorage logic
   const email = clerkUser?.primaryEmailAddress?.emailAddress || clerkUser?.emailAddresses?.[0]?.emailAddress || undefined;
   const userKey = userId ? `user_${userId}` : 'user';
   const historyKey = userId ? `actionHistory_${userId}` : 'actionHistory';
-  const user = JSON.parse(localStorage.getItem(userKey)) || { name: clerkUser?.firstName || 'User', points: 180, email };
-  // Get action history from localStorage, filter for this user
-  const actionHistoryRaw = JSON.parse(localStorage.getItem(historyKey) || '[]');
-  const actionHistory = actionHistoryRaw.filter(a => a.email === user.email);
+  const user = JSON.parse(localStorage.getItem(userKey)) || { name: clerkUser?.firstName || 'User', points: 0, co2saved: 0, email };
+  const actionHistory = JSON.parse(localStorage.getItem(historyKey) || '[]');
 
   return (
     <div className="d-flex min-vh-100 bg-light">

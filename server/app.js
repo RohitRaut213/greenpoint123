@@ -8,6 +8,8 @@ require('dotenv').config();
 const userRoutes = require('./routes/userRoutes');
 const actionRoutes = require('./routes/actionRoutes');
 const rewardRoutes = require('./routes/rewardRoutes');
+const clerkUserRoutes = require('./routes/clerkUserRoutes');
+const leaderboardRoutes = require('./routes/leaderboardRoutes');
 
 const app = express();
 app.use(cors());
@@ -19,6 +21,8 @@ const PORT = process.env.PORT || 3000;
 app.use('/api/users', userRoutes);
 app.use('/api/actions', actionRoutes);
 app.use('/api/rewards', rewardRoutes);
+app.use('/api/clerk', clerkUserRoutes);
+app.use('/api/leaderboard', leaderboardRoutes);
 
 app.get("/", (req, res) => {
   res.send("GreenPoint API is working!");

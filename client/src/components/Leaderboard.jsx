@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { useUser } from '@clerk/clerk-react';
 
-// For demo: Simulate users list in localStorage, per Clerk user
+// Simulate users list in localStorage, per Clerk user
 function getAllUsers(userId) {
-  const allUsersKey = userId ? `allUsers_${userId}` : 'allUsers';
-  let users = JSON.parse(localStorage.getItem(allUsersKey)) || [];
-  const userKey = userId ? `user_${userId}` : 'user';
-  const current = JSON.parse(localStorage.getItem(userKey)) || { name: 'User', points: 0 };
-  if (!users.some(u => u.name === current.name)) {
-    users.push(current);
-  } else {
-    users = users.map(u => u.name === current.name ? current : u);
+  // This is the previous logic: get all users from localStorage
+  let users = [];
+  for (let key in localStorage) {
+    if (key.startsWith('user_')) {
+      try {
+        const user = JSON.parse(localStorage.getItem(key));
+        if (user && user.name && typeof user.points === 'number') {
+          users.push(user);
+        }
+      } catch {}
+    }
   }
-  localStorage.setItem(allUsersKey, JSON.stringify(users));
-  return users;
+  return users.slice().sort((a, b) => b.points - a.points);
 }
 
 function Leaderboard() {
@@ -24,8 +26,6 @@ function Leaderboard() {
   useEffect(() => {
     setUsers(
       getAllUsers(userId)
-        .slice() // copy
-        .sort((a, b) => b.points - a.points)
     );
   }, [userId]);
 
