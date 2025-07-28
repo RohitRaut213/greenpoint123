@@ -10,6 +10,7 @@ const actionRoutes = require('./routes/actionRoutes');
 const rewardRoutes = require('./routes/rewardRoutes');
 const clerkUserRoutes = require('./routes/clerkUserRoutes');
 const leaderboardRoutes = require('./routes/leaderboardRoutes');
+const feedbackRoutes = require('./routes/feedbackRoutes');
 
 const app = express();
 app.use(cors());
@@ -23,6 +24,7 @@ app.use('/api/actions', actionRoutes);
 app.use('/api/rewards', rewardRoutes);
 app.use('/api/clerk', clerkUserRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
+app.use('/api/feedback', feedbackRoutes);
 
 app.get("/", (req, res) => {
   res.send("GreenPoint API is working!");
