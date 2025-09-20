@@ -1,33 +1,52 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
+import CameraModal from './CameraModal';
 
 function AddAction() {
   const { user } = useUser();
   const navigate = useNavigate();
-  const [distance, setDistance] = React.useState('');
-  const [showDistance, setShowDistance] = React.useState(false);
+  const [cameraOpen, setCameraOpen] = React.useState(false);
+  const [cameraAction, setCameraAction] = React.useState(null); // 'tree' or 'transport'
+  const [capturedImage, setCapturedImage] = React.useState(null);
   const [error, setError] = React.useState('');
   const [loading, setLoading] = React.useState(false);
-  const [showTreeForm, setShowTreeForm] = React.useState(false);
-  const [numTrees, setNumTrees] = React.useState('1');
 
   // Emission factors
   const TREE_CO2 = 21; // kg per tree per year
   const CAR_CO2 = 0.15; // kg per km
   const TRANSIT_CO2 = 0.05; // kg per km
 
-  const handleAction = async (type) => {
+  const handleAction = (type) => {
     setError('');
-    setLoading(true);
-    if (type === 'tree') {
-      setShowTreeForm(true);
-      setLoading(false);
-    } else if (type === 'transport') {
-      setShowDistance(true);
-      setLoading(false);
-    }
+    setCameraAction(type);
+    setCameraOpen(true);
   };
+
+  const handleCameraCapture = async (imgData) => {
+    setCameraOpen(false);
+    setLoading(true);
+    setError("");
+    try {
+      // Send image to backend
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: imgData, actionType: cameraAction, userId: user?.id })
+      });
+      const data = await res.json();
+      if (data.url) {
+        setCapturedImage(data.url);
+      } else {
+        setError(data.error || "Image upload failed");
+      }
+    } catch (err) {
+      setError("Image upload failed");
+    }
+    setLoading(false);
+  };
+
+
 
   const handleTreeSubmit = (e) => {
     e.preventDefault();
@@ -100,60 +119,30 @@ function AddAction() {
         <h2 className="h4 fw-bold mb-4 text-success">Choose an Eco Action</h2>
         <button
           className="btn btn-success w-100 mb-3 fw-semibold fs-5 py-2"
-          onClick={() => setShowTreeForm(true)}
+          onClick={() => handleAction('tree')}
           disabled={loading}
         >
-          Plant a Tree (enter number)
+          Plant a Tree (open camera)
         </button>
-        {showTreeForm && (
-          <form className="mt-4" onSubmit={handleTreeSubmit}>
-            <div className="mb-3">
-              <label htmlFor="numTrees" className="form-label">Number of trees planted</label>
-              <input
-                id="numTrees"
-                type="number"
-                min="1"
-                step="1"
-                className="form-control"
-                value={numTrees}
-                onChange={e => setNumTrees(e.target.value)}
-                required
-                disabled={loading}
-              />
-            </div>
-            {error && <div className="alert alert-danger py-2 small">{error}</div>}
-            <button type="submit" className="btn btn-success w-100 fw-bold" disabled={loading}>Submit</button>
-            <button type="button" className="btn btn-link mt-2" onClick={() => { setShowTreeForm(false); setNumTrees('1'); }}>Cancel</button>
-          </form>
-        )}
         <button
           className="btn btn-primary w-100 fw-semibold fs-5 py-2"
           onClick={() => handleAction('transport')}
           disabled={loading}
         >
-          Travelled through Public Transport (enter distance)
+          Travelled through Public Transport (open camera)
         </button>
-        {showDistance && (
-          <form className="mt-4" onSubmit={handleTransportSubmit}>
-            <div className="mb-3">
-              <label htmlFor="distance" className="form-label">Distance travelled (km)</label>
-              <input
-                id="distance"
-                type="number"
-                min="0.1"
-                step="0.1"
-                className="form-control"
-                value={distance}
-                onChange={e => setDistance(e.target.value)}
-                required
-                disabled={loading}
-              />
-            </div>
-            {error && <div className="alert alert-danger py-2 small">{error}</div>}
-            <button type="submit" className="btn btn-primary w-100 fw-bold" disabled={loading}>Submit</button>
-            <button type="button" className="btn btn-link mt-2" onClick={() => { setShowDistance(false); setDistance(''); }}>Cancel</button>
-          </form>
+        <CameraModal
+          open={cameraOpen}
+          onClose={() => setCameraOpen(false)}
+          onCapture={handleCameraCapture}
+        />
+        {capturedImage && (
+          <div className="mt-4">
+            <h5>Captured Image ({cameraAction === 'tree' ? 'Plant a Tree' : 'Public Transport'})</h5>
+            <img src={capturedImage} alt="Captured" style={{width: 320, borderRadius: 8}} />
+          </div>
         )}
+        {error && <div className="alert alert-danger py-2 small">{error}</div>}
       </div>
     </div>
   );
