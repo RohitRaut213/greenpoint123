@@ -27,7 +27,7 @@ app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/feedback', feedbackRoutes);
 
 app.get("/", (req, res) => {
-  res.send("GreenPoint API is working!");
+  res.send("EcoMetrics API is working!");
 });
 
 // Image upload endpoint

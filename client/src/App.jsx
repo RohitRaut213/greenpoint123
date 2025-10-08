@@ -47,14 +47,31 @@ export default function App() {
       <ClerkUserSync />
       <div>
         <SignedOut>
-        <div className="d-flex flex-column align-items-center justify-content-center min-vh-100">
-          <h2 className="mb-4">Welcome to GreenPoint!</h2>
-          <SignInButton mode="modal">
-            <button className="btn btn-success mb-2">Sign In</button>
-          </SignInButton>
-          <SignUpButton mode="modal">
-            <button className="btn btn-outline-success">Sign Up</button>
-          </SignUpButton>
+        <div className="min-vh-100 d-flex flex-column align-items-center justify-content-center bg-light">
+          <div className="text-center">
+            <div className="mb-4">
+              <h1 className="display-4 fw-bold text-success mb-3">🌍 EcoMetrics</h1>
+              <p className="lead text-muted">Track Your Carbon Footprint & Earn Rewards</p>
+            </div>
+
+            <div className="mb-4">
+              <SignInButton mode="modal">
+                <button className="btn btn-success btn-lg mb-3 px-4 py-2">
+                  Sign In
+                </button>
+              </SignInButton>
+              <br />
+              <SignUpButton mode="modal">
+                <button className="btn btn-outline-success btn-lg px-4 py-2">
+                  Sign Up
+                </button>
+              </SignUpButton>
+            </div>
+
+            <div className="text-muted">
+              <small>Join thousands of users making a positive environmental impact!</small>
+            </div>
+          </div>
         </div>
       </SignedOut>
         <SignedIn>

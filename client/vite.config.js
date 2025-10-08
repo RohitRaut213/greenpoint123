@@ -6,6 +6,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173, // Default Vite port
+    host: true, // Allow external connections for testing
     proxy: {
       '/api': {
         target: 'http://localhost:3000',

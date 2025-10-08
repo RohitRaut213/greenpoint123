@@ -19,7 +19,7 @@ function App() {
 
   return (
     <div style={{ textAlign: 'center', padding: 40 }}>
-      <h2>Greenpoint Actions</h2>
+      <h2>EcoMetrics Actions</h2>
       <button onClick={() => handleOpenCamera('plant-tree')} style={{ margin: 10 }}>
         Plant a Tree
       </button>

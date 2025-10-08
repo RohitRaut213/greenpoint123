@@ -1,6 +1,6 @@
+import { useUser } from '@clerk/clerk-react';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUser } from '@clerk/clerk-react';
 import CameraModal from './CameraModal';
 
 function AddAction() {
@@ -9,6 +9,8 @@ function AddAction() {
   const [cameraOpen, setCameraOpen] = React.useState(false);
   const [cameraAction, setCameraAction] = React.useState(null); // 'tree' or 'transport'
   const [capturedImage, setCapturedImage] = React.useState(null);
+  const [pointsEarned, setPointsEarned] = React.useState(0);
+  const [showSuccess, setShowSuccess] = React.useState(false);
   const [error, setError] = React.useState('');
   const [loading, setLoading] = React.useState(false);
 
@@ -27,33 +29,92 @@ function AddAction() {
     setCameraOpen(false);
     setLoading(true);
     setError("");
+
     try {
-      // Send image to backend
+      // Send image to backend for verification/storage
       const res = await fetch("/api/upload", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image: imgData, actionType: cameraAction, userId: user?.id })
+        body: JSON.stringify({ image: imgData, actionType: cameraAction, userId: user?.id, clerkId: user?.id })
       });
       const data = await res.json();
+
       if (data.url) {
+        // Auto-award points based on action type
+        const userId = user?.id;
+        const email = user?.primaryEmailAddress?.emailAddress || user?.emailAddresses?.[0]?.emailAddress || undefined;
+        const userKey = userId ? `user_${userId}` : 'user';
+        const historyKey = userId ? `actionHistory_${userId}` : 'actionHistory';
+
+        const userObj = JSON.parse(localStorage.getItem(userKey)) || { name: user?.firstName || 'User', points: 0, co2saved: 0, email };
+
+        let points = userObj.points || 0;
+        let co2saved = userObj.co2saved || 0;
+        let actionText = '';
+        let co2 = 0;
+        let pts = 0;
+
+        if (cameraAction === 'tree') {
+          // Award points for planting a tree (default 1 tree)
+          const numTrees = 1;
+          co2 = TREE_CO2 * numTrees;
+          pts = Math.round(co2);
+          points += pts;
+          co2saved += co2;
+          actionText = `Planted ${numTrees} tree (saved ${co2} kg CO₂/year) - Photo verified`;
+        } else if (cameraAction === 'transport') {
+          // Award points for public transport (default 1 km)
+          const distance = 1;
+          co2 = (CAR_CO2 - TRANSIT_CO2) * distance;
+          pts = Math.round(co2);
+          points += pts;
+          co2saved += co2;
+          actionText = `Travelled ${distance} km by public transport (saved ${co2.toFixed(2)} kg CO₂) - Photo verified`;
+        }
+
+        // Update user data
+        const updatedUser = { ...userObj, points, co2saved, email };
+        localStorage.setItem(userKey, JSON.stringify(updatedUser));
+
+        // Update history
+        const history = JSON.parse(localStorage.getItem(historyKey) || '[]');
+        history.unshift({
+          type: cameraAction,
+          actionText,
+          co2,
+          points: pts,
+          timestamp: new Date().toISOString(),
+          email,
+          photoVerified: true,
+          imageUrl: data.url
+        });
+        localStorage.setItem(historyKey, JSON.stringify(history));
+
+        // Set success state
         setCapturedImage(data.url);
+        setPointsEarned(pts);
+        setShowSuccess(true);
+        setError('');
+
+        // Show success message with points earned
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 2000);
+
       } else {
-        setError(data.error || "Image upload failed");
+        setError(data.error || "Photo verification failed");
       }
     } catch (err) {
-      setError("Image upload failed");
+      setError("Photo processing failed. Please try again.");
     }
     setLoading(false);
   };
-
-
 
   const handleTreeSubmit = (e) => {
     e.preventDefault();
     setError('');
     const n = parseInt(numTrees, 10);
-    if (isNaN(n) || n < 1) {
-      setError('Please enter a valid number of trees (1 or more)');
+    if (isNaN(n) || n <= 0) { // changed from n < 1 to n <= 0
       return;
     }
     // Clerk userId/email for per-user storage
@@ -132,11 +193,29 @@ function AddAction() {
           Travelled through Public Transport (open camera)
         </button>
         <CameraModal
-          open={cameraOpen}
+          isOpen={cameraOpen}
           onClose={() => setCameraOpen(false)}
           onCapture={handleCameraCapture}
         />
-        {capturedImage && (
+        {showSuccess && (
+          <div className="mt-4">
+            <div className="alert alert-success py-3">
+              <div className="d-flex align-items-center">
+                <div className="me-3">
+                  <i className="fas fa-check-circle fa-2x text-success"></i>
+                </div>
+                <div>
+                  <h5 className="mb-1">Eco Action Verified!</h5>
+                  <p className="mb-1">
+                    You earned <strong className="text-success">{pointsEarned} green points</strong>!
+                  </p>
+                  <small className="text-muted">Redirecting to dashboard...</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        {capturedImage && !showSuccess && (
           <div className="mt-4">
             <h5>Captured Image ({cameraAction === 'tree' ? 'Plant a Tree' : 'Public Transport'})</h5>
             <img src={capturedImage} alt="Captured" style={{width: 320, borderRadius: 8}} />
